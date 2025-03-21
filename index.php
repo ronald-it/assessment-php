@@ -7,26 +7,23 @@ class CompanyClass
         $c = [];
     
         if (!$this->isCompanyDataValid($data)) {
-            return;
+            return null;
         }
     
         $c['name'] = strtolower(trim($data['name']));
     
-        (preg_match('/http?:\/\//i', $cleanWebsite))
-            ? $c['website'] = parse_url($data['website'], PHP_URL_HOST)
-            : $c['website'] = $data['website'];
-    
-    
-        if ($c['website'] == null) {
-            unset($c['website']);
+        if (!empty($data['website'])) {
+            if (str_starts_with($data['website'], 'http') || (str_starts_with($data['website'], 'https')))
+            {
+                $protocol_url_validation_regex = "/^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/";
+                (preg_match($protocol_url_validation_regex, $data['website'])) && $c['website'] = parse_url($data['website'], PHP_URL_HOST);
+            } else {
+                $no_protocol_url_validation_regex = "/^[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/";
+                (preg_match($no_protocol_url_validation_regex, $data['website'])) && $c['website'] = $data['website'];
+            }
         }
     
-        if (isset($data['address']))
-            $c['address'] = trim($data['address']);
-  
-        if (empty($c['address'])) {
-            $c['address'] = null;
-        }
+        $c['address'] = trim($data['address']);
 
         return $c;
     }
@@ -34,7 +31,8 @@ class CompanyClass
     private function isCompanyDataValid(array $data): bool
     {
       
-        return isset($data[0]) && isset($data['address']);
+        return isset($data['name']) && !empty(trim($data['name']))
+        && isset($data['address']) && !empty(trim($data['address']));
     }
 }
 
@@ -42,12 +40,12 @@ class CompanyClass
 $input = [
  'name' => ' OpenAI ',
  'website' => 'https://openai.com ',
- 'address' => ' '
+ 'address' => ' ',
 ];
 
 $input2 = [
  'name' => 'Innovatiespotter',
- 'address' => 'Groningen'
+ 'address' => 'Groningen',
 ];
 
 $input3 = [
