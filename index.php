@@ -6,19 +6,24 @@ class CompanyClass
     {
         $c = [];
     
+        // Return null if there is no valid name or address
         if (!$this->isCompanyDataValid($data)) {
             return null;
         }
     
         $c['name'] = strtolower(trim($data['name']));
     
+        // Check whether there is website input, as this is optional
         if (!empty($data['website'])) {
+            // Check whether the url starts with a protocol
             if (str_starts_with($data['website'], 'http') || (str_starts_with($data['website'], 'https')))
             {
                 $protocol_url_validation_regex = "/^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/";
+                // Check whether the website matches the pattern that includes protocol 
                 (preg_match($protocol_url_validation_regex, $data['website'])) && $c['website'] = parse_url($data['website'], PHP_URL_HOST);
             } else {
                 $no_protocol_url_validation_regex = "/^[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/";
+                // Check whether the website matches the pattern that excludes protocol
                 (preg_match($no_protocol_url_validation_regex, $data['website'])) && $c['website'] = $data['website'];
             }
         }
@@ -30,7 +35,7 @@ class CompanyClass
   
     private function isCompanyDataValid(array $data): bool
     {
-      
+        // Check whether the keys have values and check whether those values are not empty after removing whitespace at the start and end
         return isset($data['name']) && !empty(trim($data['name']))
         && isset($data['address']) && !empty(trim($data['address']));
     }
