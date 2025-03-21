@@ -70,3 +70,23 @@ var_dump($result2);
 $result3 = $company->normalizeCompanyData($input3);
 
 var_dump($result3);
+
+// Task 2
+$host = "db";
+$port = "5432";
+$dbname = "company_db";
+$user = "user";
+$password = "password";
+
+$connection = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
+
+if (!$connection) {
+    die("Connection with database failed.");
+}
+
+$result = pg_query($connection, "SELECT * FROM companies");
+while ($row = pg_fetch_assoc($result)) {
+    print_r($row);
+}
+
+pg_close($connection);
